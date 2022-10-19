@@ -8,8 +8,8 @@ dotenv.config();
 
 export interface IDatabase {
 	connect(host: string, user: string, password: string, database: string): void;
-	insertUser(id: string, hash: string): string;
-	selectUser(id: string): [] | undefined;
+	insertUser(id: string, hash: string): Promise<string>;
+	selectUser(id: string): Promise<[] | undefined>;
 }
 
 export class Database implements IDatabase {
@@ -32,7 +32,7 @@ export class Database implements IDatabase {
 		this.db.query(InitQueries.createTableUsers);
 	}
 
-	insertUser(id: string, hash: string): string {
+	async insertUser(id: string, hash: string): Promise<string> {
 		if (isEmail(id)) {
 			this.db.query(authQueries.insertUserByEmail, [id, hash]);
 		} else {
@@ -41,15 +41,14 @@ export class Database implements IDatabase {
 		return 'User Created';
 	}
 
-	selectUser(id: string): [] | undefined {
+	async selectUser(id: string): Promise<[] | undefined> {
 		let results: any;
 
 		if (isEmail(id)) {
-			this.db.query(
+			await this.db.query(
 				authQueries.selectUserByEmail,
 				id,
 				(err: mysql.MysqlError | null, result: any) => {
-					
 					console.log(result);
 					results = result;
 				}

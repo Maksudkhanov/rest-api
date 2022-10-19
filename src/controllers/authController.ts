@@ -14,7 +14,7 @@ export function authController(authService: IAuthService) {
 		checkForDuplicateId(authService),
 		async (req: Request, res: Response) => {
 			try {
-				const result = authService.register(req.body);
+				const result = await authService.register(req.body);
 				res.status(201).json({ result });
 			} catch (error) {
 				console.log(error);
