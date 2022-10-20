@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
+import { Query } from 'mysql';
 import { isEmail } from '../utils/isEmail';
 import { IDatabase } from './../db/db';
 dotenv.config();
@@ -8,7 +9,7 @@ export interface IAuthService {
 	register(authDto: any): Promise<string>;
 	login(authDto: any): Promise<any>;
 	refreshToken(authDto: any): Promise<any>;
-	findById(id: string): Promise<[] | undefined>;
+	findById(id: string): Promise<Query>;
 }
 
 export class AuthService implements IAuthService {
@@ -25,7 +26,7 @@ export class AuthService implements IAuthService {
 		return await this.db.insertUser(id, hash);
 	}
 
-	async findById(id: string): Promise<[] | undefined> {
+	async findById(id: string): Promise<Query> {
 		return await this.db.selectUser(id);
 	}
 

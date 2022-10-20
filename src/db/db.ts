@@ -1,26 +1,28 @@
-import mysql from 'mysql';
+import mysql, { Query } from 'mysql';
 import dotenv from 'dotenv';
 import { InitQueries } from './queries/InitQueries';
 import { authQueries } from './queries/authQueries';
 import { isEmail } from 'class-validator';
+import util from 'util';
 
 dotenv.config();
 
 export interface IDatabase {
 	connect(host: string, user: string, password: string, database: string): void;
 	insertUser(id: string, hash: string): Promise<string>;
-	selectUser(id: string): Promise<[] | undefined>;
+	selectUser(id: string): Promise<Query>;
 }
 
 export class Database implements IDatabase {
 	private db: mysql.Connection;
+	private query: any;
 
-	connect(
+	async connect(
 		host: string,
 		user: string,
 		password: string,
 		database: string
-	): void {
+	): Promise<void> {
 		this.db = mysql.createConnection({
 			host: host,
 			user: user,
@@ -28,34 +30,27 @@ export class Database implements IDatabase {
 			database: database,
 		});
 
-		this.db.query(InitQueries.dropTableUsers);
-		this.db.query(InitQueries.createTableUsers);
+		this.query = util.promisify(this.db.query).bind(this.db);
+
+		await this.query(InitQueries.dropTableUsers);
+		await this.query(InitQueries.createTableUsers);
 	}
 
 	async insertUser(id: string, hash: string): Promise<string> {
 		if (isEmail(id)) {
-			this.db.query(authQueries.insertUserByEmail, [id, hash]);
+			await this.query(authQueries.insertUserByEmail, [id, hash]);
 		} else {
-			this.db.query(authQueries.insertUserByPhoneNumber, [id, hash]);
+			await this.query(authQueries.insertUserByPhoneNumber, [id, hash]);
 		}
 		return 'User Created';
 	}
 
-	async selectUser(id: string): Promise<[] | undefined> {
-		let results: any;
+	async selectUser(id: string): Promise<Query> {
 
 		if (isEmail(id)) {
-			await this.db.query(
-				authQueries.selectUserByEmail,
-				id,
-				(err: mysql.MysqlError | null, result: any) => {
-					console.log(result);
-					results = result;
-				}
-			);
+			return await this.query(authQueries.selectUserByEmail, id);
 
-			return results;
 		}
-		// return this.db.query(authQueries.selectUserByPhoneNumber, [id]);
+		return await this.query(authQueries.selectUserByPhoneNumber, id);
 	}
 }
