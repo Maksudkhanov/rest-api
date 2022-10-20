@@ -1,7 +1,9 @@
 import express, { Request, Response } from 'express';
 import { checkForDuplicateId } from '../middlewares/checkForDuplicateId';
 import { checkForExistanceId } from '../middlewares/checkForExistanceId';
+import { validateRefreshToken } from '../middlewares/validateRefreshToken';
 import { validateSignUpDto } from '../middlewares/validateSignUpDto';
+import { verifyRefreshToken } from '../middlewares/verifyRefreshToken';
 import { IAuthService } from '../services/authService';
 
 export function authController(authService: IAuthService) {
@@ -30,6 +32,21 @@ export function authController(authService: IAuthService) {
 			try {
 				const result = await authService.signin(req.body);
 				res.status(200).json(result);
+			} catch (error) {
+				res.status(500).json({ error: error });
+			}
+		}
+	);
+
+	router.post(
+		'/signin/new_token',
+		validateRefreshToken,
+		verifyRefreshToken(authService),
+		async (req: Request, res: Response) => {
+			try {
+				const id = req.body.id;
+				const bearerToken = authService.refreshToken(id);
+				res.status(201).json({ bearerToken });
 			} catch (error) {
 				res.status(500).json({ error: error });
 			}

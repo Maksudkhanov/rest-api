@@ -12,6 +12,7 @@ export interface IDatabase {
 	insertUser(id: string, hash: string): Promise<string>;
 	selectUser(id: string): Promise<Query>;
 	insertRefreshToken(refreshToken: string): Promise<void>;
+	selectRefreshToken(refreshToken: string): Promise<Query>;
 }
 
 export class Database implements IDatabase {
@@ -38,7 +39,7 @@ export class Database implements IDatabase {
 		await this.query(InitQueries.createTableUsers);
 		await this.query(InitQueries.createTableRefreshTokens);
 
-		await this.query(InitQueries.insertUser)
+		await this.query(InitQueries.insertUser);
 	}
 
 	async insertUser(id: string, hash: string): Promise<string> {
@@ -60,5 +61,9 @@ export class Database implements IDatabase {
 
 	async insertRefreshToken(refreshToken: string): Promise<void> {
 		await this.query(authQueries.insertRefreshToken, refreshToken);
+	}
+
+	async selectRefreshToken(refreshToken: string): Promise<Query> {
+		return await this.query(authQueries.selectRefreshToken, refreshToken);
 	}
 }

@@ -10,8 +10,9 @@ dotenv.config();
 export interface IAuthService {
 	signup(authDto: AuthDto): Promise<string>;
 	signin(authDto: AuthDto): Promise<IAuthTokensDto>;
-	refreshToken(refreshToken: string): Promise<any>;
+	refreshToken(refreshToken: string): string;
 	findById(id: string): Promise<Query>;
+	findRefreshToken(refreshToken: string): Promise<Query>;
 }
 
 export class AuthService implements IAuthService {
@@ -42,11 +43,15 @@ export class AuthService implements IAuthService {
 
 		await this.db.insertRefreshToken(refreshToken);
 
-		return {bearerToken, refreshToken};
+		return { bearerToken, refreshToken };
 	}
 
-	refreshToken(authDto: any): Promise<any> {
-		throw new Error('Method not implemented.');
+	refreshToken(id: string): string {
+		return generateBearerToken(id);
+	}
+
+	async findRefreshToken(refreshToken: string): Promise<Query> {
+		return await this.db.selectRefreshToken(refreshToken);
 	}
 }
 
