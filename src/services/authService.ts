@@ -1,13 +1,16 @@
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 import { Query } from 'mysql';
+import { AuthDto } from '../dto/auth.dto';
+import { IAuthTokensDto } from '../dto/auth.tokens.dto';
 import { IDatabase } from './../db/db';
 dotenv.config();
 
 export interface IAuthService {
-	register(authDto: any): Promise<string>;
-	login(authDto: any): Promise<any>;
-	refreshToken(authDto: any): Promise<any>;
+	signup(authDto: AuthDto): Promise<string>;
+	signin(authDto: AuthDto): Promise<IAuthTokensDto>;
+	refreshToken(refreshToken: string): Promise<any>;
 	findById(id: string): Promise<Query>;
 }
 
@@ -16,7 +19,7 @@ export class AuthService implements IAuthService {
 		this.db = db;
 	}
 
-	async register(authDto: any): Promise<string> {
+	async signup(authDto: AuthDto): Promise<string> {
 		const { id, password } = authDto;
 
 		const salt = Number(process.env.SALT as string);
@@ -31,11 +34,32 @@ export class AuthService implements IAuthService {
 		return result;
 	}
 
-	login(authDto: any): Promise<any> {
-		throw new Error('Method not implemented.');
+	async signin(authDto: AuthDto): Promise<IAuthTokensDto> {
+		const id = authDto.id;
+
+		const bearerToken = generateBearerToken(id);
+		const refreshToken = generateRefreshToken(id);
+
+		await this.db.insertRefreshToken(refreshToken);
+
+		return {bearerToken, refreshToken};
 	}
 
 	refreshToken(authDto: any): Promise<any> {
 		throw new Error('Method not implemented.');
 	}
+}
+
+function generateBearerToken(id: string): string {
+	const token = jwt.sign({ id: id }, process.env.BEARER_SECRET as string, {
+		expiresIn: process.env.BEARER_EXPIRES as string,
+	});
+	return token;
+}
+
+function generateRefreshToken(id: string): string {
+	const token = jwt.sign({ id: id }, process.env.REFRESH_SECRET as string, {
+		expiresIn: process.env.REFRESH_EXPIRES as string,
+	});
+	return token;
 }

@@ -7,6 +7,7 @@ export const InitQueries = {
    password VARCHAR(100) NOT NULL,
    PRIMARY KEY ( id )
 );`,
-	// insertUser: `INSERT INTO users(email,phoneNumber, password) VALUES('test@mail.com','+998935898756', 'admin');`,
-
+	dropTableRefreshTokens: `DROP TABLE IF EXISTS refresh_tokens;`,
+	createTableRefreshTokens: `CREATE TABLE refresh_tokens (refresh_token TEXT);`,
+	insertUser: `INSERT INTO users(email,phoneNumber, password) VALUES('test@mail.com','+998935898756', 'admin');`,
 };

@@ -1,12 +1,12 @@
 import { validate, isEmail, isMobilePhone } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
-import { AuthRegisterDto } from '../dto/auth.register.dto';
+import { AuthDto } from '../dto/auth.dto';
 export async function validateSignUpDto(
 	req: Request,
 	res: Response,
 	next: NextFunction
 ) {
-	const dto = new AuthRegisterDto();
+	const dto = new AuthDto();
 	dto.id = req.body.id;
 	dto.password = req.body.password;
 	const errors = await validate(dto);
