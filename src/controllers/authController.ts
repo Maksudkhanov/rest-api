@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { authCheck } from '../middlewares/authCheck';
 import { checkForDuplicateId } from '../middlewares/checkForDuplicateId';
 import { checkForExistanceId } from '../middlewares/checkForExistanceId';
 import { validateRefreshToken } from '../middlewares/validateRefreshToken';
@@ -8,6 +9,11 @@ import { IAuthService } from '../services/authService';
 
 export function authController(authService: IAuthService) {
 	const router = express.Router();
+
+	router.get('/info', authCheck, async (req: Request, res: Response) => {
+		const id = req.body.id;
+		res.status(200).json({ id: id });
+	});
 
 	router.post(
 		'/signup',

@@ -14,11 +14,11 @@ export function verifyRefreshToken(authService: IAuthService) {
 				return res.status(400).json({ err: 'Invalid refreshToken' });
 			}
 
-			const decoded = jwt.verify(
+			const decodedData = jwt.verify(
 				refreshToken,
 				process.env.REFRESH_SECRET as string
 			);
-			req.body.id = decoded;
+			req.body = decodedData;
 
 			next();
 		} catch (error) {			
