@@ -11,8 +11,9 @@ export interface IDatabase {
 	connect(host: string, user: string, password: string, database: string): void;
 	insertUser(id: string, hash: string): Promise<string>;
 	selectUser(id: string): Promise<Query>;
-	insertRefreshToken(refreshToken: string): Promise<void>;
+	insertRefreshToken(id: string, refreshToken: string): Promise<void>;
 	selectRefreshToken(refreshToken: string): Promise<Query>;
+	updateRefreshToken(id: string, refreshToken: string): Promise<void>;
 }
 
 export class Database implements IDatabase {
@@ -59,8 +60,12 @@ export class Database implements IDatabase {
 		return await this.query(authQueries.selectUserByPhoneNumber, id);
 	}
 
-	async insertRefreshToken(refreshToken: string): Promise<void> {
-		await this.query(authQueries.insertRefreshToken, refreshToken);
+	async insertRefreshToken(id: string, refreshToken: string): Promise<void> {
+		await this.query(authQueries.insertRefreshToken, [id, refreshToken]);
+	}
+
+	async updateRefreshToken(id: string, refreshToken: string): Promise<void> {
+		await this.query(authQueries.updateRefreshToken, [refreshToken, id]);
 	}
 
 	async selectRefreshToken(refreshToken: string): Promise<Query> {

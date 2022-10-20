@@ -11,8 +11,22 @@ export function authController(authService: IAuthService) {
 	const router = express.Router();
 
 	router.get('/info', authCheck, async (req: Request, res: Response) => {
-		const id = req.body.id;
-		res.status(200).json({ id: id });
+		try {
+			const id = req.body.id;
+			res.status(200).json({ id: id });
+		} catch (error) {
+			res.status(500).json({ error: error });
+		}
+	});
+
+	router.get('/logout', authCheck, async (req: Request, res: Response) => {
+		try {
+			const id = req.body.id;
+			const newRefreshToken = await authService.updateRefreshToken(id);
+			res.status(200).json({ refreshToken: newRefreshToken });
+		} catch (error) {
+			res.status(500).json({ error: error });
+		}
 	});
 
 	router.post(
@@ -51,7 +65,7 @@ export function authController(authService: IAuthService) {
 		async (req: Request, res: Response) => {
 			try {
 				const id = req.body.id;
-				const bearerToken = authService.refreshToken(id);
+				const bearerToken = authService.updateBearerToken(id);
 				res.status(201).json({ bearerToken });
 			} catch (error) {
 				res.status(500).json({ error: error });

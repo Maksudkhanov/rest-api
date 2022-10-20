@@ -3,6 +3,7 @@ export const authQueries = {
 	insertUserByPhoneNumber: `INSERT INTO users(phoneNumber, password) VALUES(?, ?);`,
 	selectUserByEmail: `SELECT * FROM users WHERE email = ?;`,
 	selectUserByPhoneNumber: `SELECT * FROM users WHERE phoneNumber = ?;`,
-	insertRefreshToken: `INSERT INTO refresh_tokens VALUES(?);`,
+	insertRefreshToken: `INSERT INTO refresh_tokens VALUES(?, ?);`,
 	selectRefreshToken: `SELECT * FROM refresh_tokens WHERE refresh_token = ?;`,
+	updateRefreshToken: `UPDATE refresh_tokens SET refresh_token = ? WHERE id = ?;`,
 };

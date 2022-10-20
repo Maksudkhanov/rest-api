@@ -10,9 +10,11 @@ export function verifyRefreshToken(authService: IAuthService) {
 
 			const result = await authService.findRefreshToken(refreshToken);
 			
+			
 			if (!isNotEmptyArr(result)) {
 				return res.status(400).json({ err: 'Invalid refreshToken' });
 			}
+			
 
 			const decodedData = jwt.verify(
 				refreshToken,

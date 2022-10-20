@@ -10,7 +10,8 @@ dotenv.config();
 export interface IAuthService {
 	signup(authDto: AuthDto): Promise<string>;
 	signin(authDto: AuthDto): Promise<IAuthTokensDto>;
-	refreshToken(refreshToken: string): string;
+	updateBearerToken(id: string): string;
+	updateRefreshToken(id: string): Promise<string>;
 	findById(id: string): Promise<Query>;
 	findRefreshToken(refreshToken: string): Promise<Query>;
 }
@@ -41,13 +42,19 @@ export class AuthService implements IAuthService {
 		const bearerToken = generateBearerToken(id);
 		const refreshToken = generateRefreshToken(id);
 
-		await this.db.insertRefreshToken(refreshToken);
+		await this.db.insertRefreshToken(id, refreshToken);
 
 		return { bearerToken, refreshToken };
 	}
 
-	refreshToken(id: string): string {
+	updateBearerToken(id: string): string {
 		return generateBearerToken(id);
+	}
+
+	async updateRefreshToken(id: string): Promise<string> {
+		const newRefreshToken = generateBearerToken(id)
+		await this.db.updateRefreshToken(id, newRefreshToken)
+		return newRefreshToken;
 	}
 
 	async findRefreshToken(refreshToken: string): Promise<Query> {

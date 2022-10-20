@@ -8,6 +8,6 @@ export const InitQueries = {
    PRIMARY KEY ( id )
 );`,
 	dropTableRefreshTokens: `DROP TABLE IF EXISTS refresh_tokens;`,
-	createTableRefreshTokens: `CREATE TABLE refresh_tokens (refresh_token TEXT);`,
+	createTableRefreshTokens: `CREATE TABLE refresh_tokens (id VARCHAR(20) NOT NULL, refresh_token TEXT NOT NULL);`,
 	insertUser: `INSERT INTO users(email,phoneNumber, password) VALUES('test@mail.com','+998935898756', 'admin');`,
 };
