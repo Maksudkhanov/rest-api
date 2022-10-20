@@ -1,9 +1,9 @@
+import { isEmail } from 'class-validator';
 import mysql, { Query } from 'mysql';
 import dotenv from 'dotenv';
+import util from 'util';
 import { InitQueries } from './queries/InitQueries';
 import { authQueries } from './queries/authQueries';
-import { isEmail } from 'class-validator';
-import util from 'util';
 
 dotenv.config();
 
@@ -46,10 +46,8 @@ export class Database implements IDatabase {
 	}
 
 	async selectUser(id: string): Promise<Query> {
-
 		if (isEmail(id)) {
 			return await this.query(authQueries.selectUserByEmail, id);
-
 		}
 		return await this.query(authQueries.selectUserByPhoneNumber, id);
 	}

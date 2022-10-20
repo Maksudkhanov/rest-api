@@ -1,6 +1,4 @@
-import { validate } from 'class-validator';
 import express, { Request, Response } from 'express';
-import { AuthRegisterDto } from '../dto/auth.register.dto';
 import { checkForDuplicateId } from '../middlewares/checkForDuplicateId';
 import { validateSignUpDto } from '../middlewares/validateSignUpDto';
 import { IAuthService } from '../services/authService';
@@ -15,13 +13,13 @@ export function authController(authService: IAuthService) {
 		async (req: Request, res: Response) => {
 			try {
 				const result = await authService.register(req.body);				
-				res.status(201).json({ result: result });
+				res.status(201).json({ msg: result });
 			} catch (error) {
 				console.log(error);
-				res.status(500);
+				res.status(500).json({error: error});
 			}
 		}
 	);
 
 	return router;
-}
+}	
