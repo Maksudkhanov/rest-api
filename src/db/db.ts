@@ -17,6 +17,7 @@ export interface IDatabase {
 	updateRefreshToken(id: string, refreshToken: string): Promise<void>;
 	insertFile(file: IFile): Promise<string>;
 	selectFileById(id: number): Promise<IFile>;
+	deleteFileById(id: number): Promise<string>;
 }
 
 export interface IFile {
@@ -97,7 +98,12 @@ export class Database implements IDatabase {
 	}
 
 	async selectFileById(id: number): Promise<IFile> {
-		const file = await this.query(fileQueries.selectFileById, id);		
+		const file = await this.query(fileQueries.selectFileById, id);
 		return file[0];
+	}
+
+	async deleteFileById(id: number): Promise<string> {
+		const result = await this.query(fileQueries.deleteFileById, id);
+		return `File with id ${id} deleted`;
 	}
 }

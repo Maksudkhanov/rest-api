@@ -1,9 +1,11 @@
 import { UploadedFile } from 'express-fileupload';
+import fs from 'fs';
 import { IDatabase, IFile } from '../db/db';
 
 export interface IFileService {
 	insertFile(file: UploadedFile | UploadedFile[]): Promise<string>;
-	showFileInfo(id: number): Promise<any>;
+	showFileInfo(id: number): Promise<IFile>;
+	deleteById(id: number, fileInfo: IFile): Promise<string>;
 }
 
 export class FileService implements IFileService {
@@ -31,5 +33,18 @@ export class FileService implements IFileService {
 	async showFileInfo(id: number): Promise<IFile> {
 		const file = await this.db.selectFileById(id);
 		return file;
+	}
+
+	async deleteById(id: number, fileInfo: IFile): Promise<string> {
+		const deleted = fs.rm(
+			`./uploads/${fileInfo.name}.${fileInfo.ext}`,
+			(err: NodeJS.ErrnoException | null) => {
+				if (err) {
+					console.log(err);
+				}
+			}
+		);
+		const result = await this.db.deleteFileById(id);
+		return result;
 	}
 }
