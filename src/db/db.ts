@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import util from 'util';
 import { InitQueries } from './queries/InitQueries';
 import { authQueries } from './queries/authQueries';
+import { fileQueries } from './queries/fileQueries';
 
 dotenv.config();
 
@@ -14,6 +15,15 @@ export interface IDatabase {
 	insertRefreshToken(id: string, refreshToken: string): Promise<void>;
 	selectRefreshToken(refreshToken: string): Promise<Query>;
 	updateRefreshToken(id: string, refreshToken: string): Promise<void>;
+	insertFile(file: IFile): Promise<string>;
+}
+
+export interface IFile {
+	name: string;
+	ext: string;
+	sizeMb: number;
+	mimeType: string;
+	date: string;
 }
 
 export class Database implements IDatabase {
@@ -39,6 +49,8 @@ export class Database implements IDatabase {
 		await this.query(InitQueries.dropTableRefreshTokens);
 		await this.query(InitQueries.createTableUsers);
 		await this.query(InitQueries.createTableRefreshTokens);
+		await this.query(InitQueries.dropTableFiles);
+		await this.query(InitQueries.createTableFiles);
 
 		await this.query(InitQueries.insertUser);
 	}
@@ -70,5 +82,16 @@ export class Database implements IDatabase {
 
 	async selectRefreshToken(refreshToken: string): Promise<Query> {
 		return await this.query(authQueries.selectRefreshToken, refreshToken);
+	}
+
+	async insertFile(file: IFile): Promise<string> {
+		await this.query(fileQueries.insertFile, [
+			file.name,
+			file.ext,
+			file.mimeType,
+			file.sizeMb,
+			file.date,
+		]);
+		return 'File is uploaded';
 	}
 }

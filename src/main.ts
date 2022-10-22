@@ -1,8 +1,11 @@
+import fileUpload from 'express-fileupload';
 import dotenv from 'dotenv';
 import { Database } from './db/db';
 import server from './server';
 import { authController } from './controllers/authController';
 import { AuthService } from './services/authService';
+import { fileController } from './controllers/fileController';
+import { FileService } from './services/fileService';
 
 dotenv.config();
 
@@ -16,15 +19,19 @@ const start = async () => {
 	try {
 		const db = new Database();
 		db.connect(db_host, db_user, db_password, db_name);
-		
+
 		const authService = new AuthService(db);
-		// const fileService = new FileService(db)
+		const fileService = new FileService(db);
 
 		const auth = authController(authService);
-		// const file = fileController(fileService)
-
+		const file = fileController(fileService);
+		server.use(
+			fileUpload({
+				createParentPath: true,
+			})
+		);
 		server.use('/auth', auth);
-		// server.use('/file', fileRouter);
+		server.use('/file', file);
 
 		server.listen(PORT, () => console.log('Running on server', PORT));
 	} catch (error) {
