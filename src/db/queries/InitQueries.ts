@@ -16,7 +16,7 @@ export const InitQueries = {
 		ext VARCHAR(50) NOT NULL,
 		mimeType TEXT NOT NULL,
 		sizeMb FLOAT NOT NULL,
-		createdAt VARCHAR(20) NOT NULL,
+		uploadedAt VARCHAR(20) NOT NULL,
 		PRIMARY KEY ( id )
 	)`,
 

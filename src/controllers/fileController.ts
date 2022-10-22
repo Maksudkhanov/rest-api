@@ -42,7 +42,24 @@ export function fileController(fileService: IFileService) {
 				const id = Number(req.params.id);
 				const fileInfo = req.body.fileInfo;
 				const result = await fileService.deleteById(id, fileInfo);
-				res.status(200).json({ msg: result})
+				res.status(200).json({ msg: result });
+			} catch (error) {
+				res.status(500).send(error);
+			}
+		}
+	);
+
+	router.put(
+		'/update/:id',
+		checkForExistanceFile(fileService),
+		async (req: Request, res: Response) => {
+			try {
+				const id = Number(req.params.id);
+				const oldFile = req.body.fileInfo;
+				const avatar: UploadedFile | UploadedFile[] = req.files!.avatar;
+
+				const result = await fileService.updateById(id, avatar, oldFile);
+				res.status(200).json({ msg: result });
 			} catch (error) {
 				res.status(500).send(error);
 			}

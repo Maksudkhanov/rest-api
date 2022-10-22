@@ -6,6 +6,11 @@ export interface IFileService {
 	insertFile(file: UploadedFile | UploadedFile[]): Promise<string>;
 	showFileInfo(id: number): Promise<IFile>;
 	deleteById(id: number, fileInfo: IFile): Promise<string>;
+	updateById(
+		id: number,
+		newFile: UploadedFile | UploadedFile[],
+		oldFile: IFile
+	): Promise<string>;
 }
 
 export class FileService implements IFileService {
@@ -14,19 +19,11 @@ export class FileService implements IFileService {
 	}
 
 	async insertFile(file: UploadedFile): Promise<string> {
-		await file.mv('./uploads/' + file.name);
+		await uploadFile(file);
 
-		const dataname = file.name.split('.');
+		const fileInfo = getFileInfo(file);
+		const result = await this.db.insertFile(fileInfo);
 
-		const fileData = {
-			name: dataname[0],
-			ext: dataname[1],
-			sizeMb: Number((file.size / (1000 * 1000)).toFixed(2)),
-			mimeType: file.mimetype,
-			date: new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' }),
-		};
-
-		const result = await this.db.insertFile(fileData);
 		return result;
 	}
 
@@ -36,15 +33,49 @@ export class FileService implements IFileService {
 	}
 
 	async deleteById(id: number, fileInfo: IFile): Promise<string> {
-		const deleted = fs.rm(
-			`./uploads/${fileInfo.name}.${fileInfo.ext}`,
-			(err: NodeJS.ErrnoException | null) => {
-				if (err) {
-					console.log(err);
-				}
-			}
-		);
+		deleteFile(fileInfo);
 		const result = await this.db.deleteFileById(id);
 		return result;
 	}
+
+	async updateById(
+		id: number,
+		newFile: UploadedFile,
+		oldFile: IFile
+	): Promise<string> {
+		deleteFile(oldFile);
+		await uploadFile(newFile);
+
+		const newFileInfo = getFileInfo(newFile);
+		const result = await this.db.updateFileById(id, newFileInfo);
+
+		return result;
+	}
+}
+
+async function uploadFile(file: UploadedFile) {
+	return await file.mv('./uploads/' + file.name);
+}
+
+function getFileInfo(file: UploadedFile) {
+	const dataname = file.name.split('.');
+	return {
+		name: dataname[0],
+		ext: dataname[1],
+		sizeMb: Number((file.size / (1000 * 1000)).toFixed(2)),
+		mimeType: file.mimetype,
+		date: new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' }),
+	};
+}
+
+function deleteFile(oldFile: IFile) {
+	fs.rm(
+		`./uploads/${oldFile.name}.${oldFile.ext}`,
+		(err: NodeJS.ErrnoException | null) => {
+			if (err) {
+				console.log(err);
+			}
+		}
+	);
+	return;
 }
