@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { IAuthService } from '../services/authService';
 import { isNotEmptyArr } from '../utils/isNotEmptyArr';
 
-export function checkForDuplicateId(authService: IAuthService) {
+export function checkForDuplicateUserId(authService: IAuthService) {
 	return async function (req: Request, res: Response, next: NextFunction) {
 		const result: Query = await authService.findById(req.body.id);
 		

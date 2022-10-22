@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { authCheck } from '../middlewares/authCheck';
-import { checkForDuplicateId } from '../middlewares/checkForDuplicateId';
-import { checkForExistanceId } from '../middlewares/checkForExistanceId';
+import { checkForDuplicateUserId } from '../middlewares/checkForDuplicateUserId';
+import { checkForExistanceUserId } from '../middlewares/checkForExistanceUserId';
 import { validateRefreshToken } from '../middlewares/validateRefreshToken';
 import { validateSignUpDto } from '../middlewares/validateSignUpDto';
 import { verifyRefreshToken } from '../middlewares/verifyRefreshToken';
@@ -32,7 +32,7 @@ export function authController(authService: IAuthService) {
 	router.post(
 		'/signup',
 		validateSignUpDto,
-		checkForDuplicateId(authService),
+		checkForDuplicateUserId(authService),
 		async (req: Request, res: Response) => {
 			try {
 				const result = await authService.signup(req.body);
@@ -47,7 +47,7 @@ export function authController(authService: IAuthService) {
 	router.post(
 		'/signin',
 		validateSignUpDto,
-		checkForExistanceId(authService),
+		checkForExistanceUserId(authService),
 		async (req: Request, res: Response) => {
 			try {
 				const result = await authService.signin(req.body);

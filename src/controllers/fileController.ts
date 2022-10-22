@@ -1,3 +1,4 @@
+import { isEmpty } from 'class-validator';
 import express, { Request, Response } from 'express';
 import { UploadedFile } from 'express-fileupload';
 import { validateFile } from '../middlewares/validateFile';
@@ -8,31 +9,29 @@ export function fileController(fileService: IFileService) {
 
 	router.post('/upload', validateFile, async (req: Request, res: Response) => {
 		try {
-			
-			if (Array.isArray(req.files?.avatar)) {
-				return res.status(400).json({ err: 'Only one file can be uploaded' });
-			}
-
-			let avatar: UploadedFile = req.files!.avatar;
-
+			const avatar: UploadedFile | UploadedFile[] = req.files!.avatar;
 			const result = await fileService.insertFile(avatar);
+
 			res.status(201).json({ msg: result });
 		} catch (err) {
 			res.status(500).send(err);
 		}
 	});
 
-	return router;
-}
+	router.get('/:id', async (req: Request, res: Response) => {
+		try {
+			const id = Number(req.params.id);
+			const result = await fileService.showFileInfo(id);
 
-interface IAvatar {
-	name: string;
-	data: Buffer;
-	size: number;
-	encoding: string;
-	tempFilePath: string;
-	truncated: boolean;
-	mimetype: string;
-	md5: string;
-	mv: Function;
+			if (isEmpty(result)) {
+				return res.status(404).json({ error: 'No such file' });
+			}
+
+			res.status(200).json(result);
+		} catch (err) {
+			res.status(500).send(err);
+		}
+	});
+
+	return router;
 }

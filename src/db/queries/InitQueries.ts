@@ -18,7 +18,6 @@ export const InitQueries = {
 		sizeMb FLOAT NOT NULL,
 		createdAt VARCHAR(20) NOT NULL,
 		PRIMARY KEY ( id )
-
 	)`,
 
 	insertUser: `INSERT INTO users(email,phoneNumber, password) VALUES('test@mail.com','+998935898756', 'admin');`,

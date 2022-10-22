@@ -16,6 +16,7 @@ export interface IDatabase {
 	selectRefreshToken(refreshToken: string): Promise<Query>;
 	updateRefreshToken(id: string, refreshToken: string): Promise<void>;
 	insertFile(file: IFile): Promise<string>;
+	selectFileById(id: number): Promise<IFile>;
 }
 
 export interface IFile {
@@ -93,5 +94,10 @@ export class Database implements IDatabase {
 			file.date,
 		]);
 		return 'File is uploaded';
+	}
+
+	async selectFileById(id: number): Promise<IFile> {
+		const file = await this.query(fileQueries.selectFileById, id);		
+		return file[0];
 	}
 }

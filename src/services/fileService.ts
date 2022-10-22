@@ -1,8 +1,9 @@
 import { UploadedFile } from 'express-fileupload';
-import { IDatabase } from '../db/db';
+import { IDatabase, IFile } from '../db/db';
 
 export interface IFileService {
-	insertFile(file: UploadedFile): Promise<string>;
+	insertFile(file: UploadedFile | UploadedFile[]): Promise<string>;
+	showFileInfo(id: number): Promise<any>;
 }
 
 export class FileService implements IFileService {
@@ -23,10 +24,12 @@ export class FileService implements IFileService {
 			date: new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' }),
 		};
 
-		const result = await this.db.insertFile(fileData)
-		return result
+		const result = await this.db.insertFile(fileData);
+		return result;
+	}
+
+	async showFileInfo(id: number): Promise<IFile> {
+		const file = await this.db.selectFileById(id);
+		return file;
 	}
 }
-
-
-
