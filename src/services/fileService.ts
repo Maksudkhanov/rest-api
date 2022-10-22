@@ -11,6 +11,12 @@ export interface IFileService {
 		newFile: UploadedFile | UploadedFile[],
 		oldFile: IFile
 	): Promise<string>;
+	selectAll(): Promise<FileAndInfo[] | []>;
+}
+
+export interface FileAndInfo {
+	fileInfo: IFile;
+	file: string;
 }
 
 export class FileService implements IFileService {
@@ -51,7 +57,17 @@ export class FileService implements IFileService {
 
 		return result;
 	}
+
+	async selectAll(): Promise<FileAndInfo[] | []> {
+		const filesInfo = await this.db.selectAll();
+		return filesInfo.map((file) => ({
+			fileInfo: file,
+			file: fs.readFileSync(`./uploads/${file.name}.${file.ext}`, 'utf8'),
+		}));
+	}
 }
+
+// fs.
 
 async function uploadFile(file: UploadedFile) {
 	return await file.mv('./uploads/' + file.name);

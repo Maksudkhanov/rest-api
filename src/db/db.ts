@@ -19,6 +19,7 @@ export interface IDatabase {
 	selectFileById(id: number): Promise<IFile>;
 	deleteFileById(id: number): Promise<string>;
 	updateFileById(id: number, file: IFile): Promise<string>;
+	selectAll(): Promise<IFile[] | []>;
 }
 
 export interface IFile {
@@ -118,5 +119,10 @@ export class Database implements IDatabase {
 			id,
 		]);
 		return 'File is updated';
+	}
+
+	async selectAll(): Promise<IFile[] | []> {
+		const result = await this.query(fileQueries.selectAll);
+		return result;
 	}
 }
