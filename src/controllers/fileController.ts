@@ -65,8 +65,7 @@ export function fileController(fileService: IFileService) {
 
 			const paginatedFiles = paginateItems(files)(page, limit);
 
-			res.status(200).json(paginatedFiles)
-		
+			res.status(200).json(paginatedFiles);
 		} catch (error) {
 			res.status(500).json(error);
 		}
@@ -84,6 +83,24 @@ export function fileController(fileService: IFileService) {
 			res.status(200).json(result);
 		} catch (err) {
 			res.status(500).send(err);
+		}
+	});
+
+	router.get('/dowload/:id', async (req: Request, res: Response) => {
+		try {
+			const id = Number(req.params.id);
+			const fileInfo = await fileService.showFileInfo(id);
+
+			if (isEmpty(fileInfo)) {
+				return res.status(404).json({ error: 'No such file' });
+			}
+
+			const pathToFile = `./uploads/${fileInfo.name}.${fileInfo.ext}`;
+			res.status(200).download(pathToFile)
+
+
+		} catch (error) {
+			res.status(500).send(error);
 		}
 	});
 

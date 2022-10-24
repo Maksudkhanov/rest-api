@@ -3,5 +3,5 @@ export const fileQueries = {
 	selectFileById: `SELECT name, ext, mimeType, sizeMb, uploadedAt FROM files WHERE id = ?`,
 	deleteFileById: `DELETE FROM files WHERE id = ?;`,
 	updateFileById: `UPDATE files SET name=?, ext=?, mimeType=?, sizeMb=?, uploadedAt=? WHERE id =?;`,
-	selectAll: `SELECT name, ext, mimeType, sizeMb, uploadedAt FROM files;`,
+	selectAll: `SELECT id, name, ext, mimeType, sizeMb, uploadedAt FROM files;`,
 };

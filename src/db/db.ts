@@ -23,6 +23,7 @@ export interface IDatabase {
 }
 
 export interface IFile {
+	id?: number,
 	name: string;
 	ext: string;
 	sizeMb: number;
