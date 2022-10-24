@@ -53,10 +53,10 @@ export class Database implements IDatabase {
 		await this.query(InitQueries.dropTableRefreshTokens);
 		await this.query(InitQueries.createTableUsers);
 		await this.query(InitQueries.createTableRefreshTokens);
-		await this.query(InitQueries.dropTableFiles);
+		await this.query(InitQueries.dropTableFiles);                           
 		await this.query(InitQueries.createTableFiles);
 
-		await this.query(InitQueries.insertUser);
+		await this.query(InitQueries.insertUser);  
 	}
 
 	async insertUser(id: string, hash: string): Promise<string> {

@@ -16,7 +16,7 @@ export interface IFileService {
 
 export interface FileAndInfo {
 	fileInfo: IFile;
-	file: string;
+	file: Error | Buffer;
 }
 
 export class FileService implements IFileService {
@@ -60,14 +60,30 @@ export class FileService implements IFileService {
 
 	async selectAll(): Promise<FileAndInfo[] | []> {
 		const filesInfo = await this.db.selectAll();
-		return filesInfo.map((file) => ({
-			fileInfo: file,
-			file: fs.readFileSync(`./uploads/${file.name}.${file.ext}`, 'utf8'),
-		}));
+		return await Promise.all(
+			filesInfo.map(async (file) => ({
+				fileInfo: file,
+				file: await readFile(`./uploads/${file.name}.${file.ext}`),
+			}))
+		);
 	}
 }
 
-// fs.
+const readFile = (filePath: string): Promise<Error | Buffer> => {
+	return new Promise((resolve, reject) => {
+		fs.readFile(
+			filePath,
+			(error: NodeJS.ErrnoException | null, fileContent: Buffer) => {
+				if (error !== null) {
+					reject(error);
+					return;
+				}
+
+				resolve(fileContent);
+			}
+		);
+	});
+};
 
 async function uploadFile(file: UploadedFile) {
 	return await file.mv('./uploads/' + file.name);

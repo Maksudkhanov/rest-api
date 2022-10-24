@@ -20,8 +20,6 @@ export function fileController(fileService: IFileService) {
 		}
 	});
 
-	
-
 	router.delete(
 		'/delete/:id',
 		checkForExistanceFile(fileService),
@@ -66,7 +64,9 @@ export function fileController(fileService: IFileService) {
 			}
 
 			const paginatedFiles = paginateItems(files)(page, limit);
-			res.status(200).send(paginatedFiles);
+
+			res.status(200).json(paginatedFiles)
+		
 		} catch (error) {
 			res.status(500).json(error);
 		}
