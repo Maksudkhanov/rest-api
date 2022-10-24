@@ -1,17 +1,18 @@
 import fs from 'fs';
 import { UploadedFile } from 'express-fileupload';
-import { IDatabase, IFile } from '../db/db';
+import { IDatabase } from '../db/db';
+import { IFileInfo } from '../interfaces/fileInfo';
 
 export interface IFileService {
 	insertFile(file: UploadedFile | UploadedFile[]): Promise<string>;
-	showFileInfo(id: number): Promise<IFile>;
-	deleteById(id: number, fileInfo: IFile): Promise<string>;
-	updateById(
+	showFileInfo(id: number): Promise<IFileInfo | undefined>;
+	deleteFileById(id: number, fileInfo: IFileInfo): Promise<string>;
+	updateFileById(
 		id: number,
 		newFile: UploadedFile | UploadedFile[],
-		oldFile: IFile
+		oldFile: IFileInfo
 	): Promise<string>;
-	selectAll(): Promise<IFile[] | []>;
+	selectAllFiles(): Promise<IFileInfo[] | []>;
 }
 
 export class FileService implements IFileService {
@@ -28,23 +29,23 @@ export class FileService implements IFileService {
 		return result;
 	}
 
-	async showFileInfo(id: number): Promise<IFile> {
+	async showFileInfo(id: number): Promise<IFileInfo | undefined> {
 		const file = await this.db.selectFileById(id);
 		return file;
 	}
 
-	async deleteById(id: number, fileInfo: IFile): Promise<string> {
+	async deleteFileById(id: number, fileInfo: IFileInfo): Promise<string> {
 		deleteFile(fileInfo);
 		const result = await this.db.deleteFileById(id);
 		return result;
 	}
 
-	async updateById(
+	async updateFileById(
 		id: number,
 		newFile: UploadedFile,
-		oldFile: IFile
+		oldFileInfo: IFileInfo
 	): Promise<string> {
-		deleteFile(oldFile);
+		deleteFile(oldFileInfo);
 		await uploadFile(newFile);
 
 		const newFileInfo = getFileInfo(newFile);
@@ -53,11 +54,10 @@ export class FileService implements IFileService {
 		return result;
 	}
 
-	async selectAll(): Promise<IFile[] | []> {
-		const filesInfo = await this.db.selectAll();
+	async selectAllFiles(): Promise<IFileInfo[] | []> {
+		const filesInfo = await this.db.selectAllFiles();
 		return filesInfo;
 	}
-
 }
 
 async function uploadFile(file: UploadedFile) {
@@ -75,9 +75,9 @@ function getFileInfo(file: UploadedFile) {
 	};
 }
 
-function deleteFile(oldFile: IFile) {
+function deleteFile(oldFileInfo: IFileInfo) {
 	fs.rm(
-		`./uploads/${oldFile.name}.${oldFile.ext}`,
+		`./uploads/${oldFileInfo.name}.${oldFileInfo.ext}`,
 		(err: NodeJS.ErrnoException | null) => {
 			if (err) {
 				console.log(err);

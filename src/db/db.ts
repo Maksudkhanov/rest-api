@@ -1,34 +1,32 @@
 import { isEmail } from 'class-validator';
-import mysql, { Query } from 'mysql';
+import mysql from 'mysql';
 import dotenv from 'dotenv';
 import util from 'util';
 import { InitQueries } from './queries/InitQueries';
 import { authQueries } from './queries/authQueries';
 import { fileQueries } from './queries/fileQueries';
+import { IFileInfo } from '../interfaces/fileInfo';
 
 dotenv.config();
 
 export interface IDatabase {
 	connect(host: string, user: string, password: string, database: string): void;
-	insertUser(id: string, hash: string): Promise<string>;
-	selectUser(id: string): Promise<Query>;
-	insertRefreshToken(id: string, refreshToken: string): Promise<void>;
-	selectRefreshToken(refreshToken: string): Promise<Query>;
-	updateRefreshToken(id: string, refreshToken: string): Promise<void>;
-	insertFile(file: IFile): Promise<string>;
-	selectFileById(id: number): Promise<IFile>;
-	deleteFileById(id: number): Promise<string>;
-	updateFileById(id: number, file: IFile): Promise<string>;
-	selectAll(): Promise<IFile[] | []>;
-}
 
-export interface IFile {
-	id?: number,
-	name: string;
-	ext: string;
-	sizeMb: number;
-	mimeType: string;
-	date: string;
+	insertUser(id: string, hash: string): Promise<string>;
+	selectUser(id: string): Promise<string | undefined>;
+
+	insertBearerToken(id: string, bearerToken: string): Promise<void>;
+	selectBearerToken(bearerToken: string): Promise<string | undefined>;
+	updateBearerToken(bearerToken: string): Promise<void>;
+
+	insertRefreshToken(id: string, refreshToken: string): Promise<void>;
+	selectRefreshToken(refreshToken: string): Promise<string | undefined>;
+
+	insertFile(fileInfo: IFileInfo): Promise<string>;
+	selectFileById(id: number): Promise<IFileInfo | undefined>;
+	deleteFileById(id: number): Promise<string>;
+	updateFileById(id: number, fileInfo: IFileInfo): Promise<string>;
+	selectAllFiles(): Promise<IFileInfo[] | []>;
 }
 
 export class Database implements IDatabase {
@@ -51,56 +49,46 @@ export class Database implements IDatabase {
 		this.query = util.promisify(this.db.query).bind(this.db);
 
 		await this.query(InitQueries.dropTableUsers);
-		await this.query(InitQueries.dropTableRefreshTokens);
 		await this.query(InitQueries.createTableUsers);
+
+		await this.query(InitQueries.dropTableBearerTokens);
+		await this.query(InitQueries.createTableBearerTokens);
+
+		await this.query(InitQueries.dropTableRefreshTokens);
 		await this.query(InitQueries.createTableRefreshTokens);
-		await this.query(InitQueries.dropTableFiles);                           
+
+		await this.query(InitQueries.dropTableFiles);
 		await this.query(InitQueries.createTableFiles);
 
-		await this.query(InitQueries.insertUser);  
+		// await this.query(InitQueries.insertUser);
 	}
 
 	async insertUser(id: string, hash: string): Promise<string> {
 		if (isEmail(id)) {
-			await this.query(authQueries.insertUserByEmail, [id, hash]);
-		} else {
-			await this.query(authQueries.insertUserByPhoneNumber, [id, hash]);
+			return await this.query(authQueries.insertUserByEmail, [id, hash]);
 		}
-
-		return 'User Created';
+		return await this.query(authQueries.insertUserByPhoneNumber, [id, hash]);
 	}
 
-	async selectUser(id: string): Promise<Query> {
+	async selectUser(id: string): Promise<string | undefined> {
 		if (isEmail(id)) {
-			return await this.query(authQueries.selectUserByEmail, id);
+			return await this.query(authQueries.selectUserByEmail, id)[0];
 		}
-		return await this.query(authQueries.selectUserByPhoneNumber, id);
+		return await this.query(authQueries.selectUserByPhoneNumber, id)[0];
 	}
 
-	async insertRefreshToken(id: string, refreshToken: string): Promise<void> {
-		await this.query(authQueries.insertRefreshToken, [id, refreshToken]);
-	}
-
-	async updateRefreshToken(id: string, refreshToken: string): Promise<void> {
-		await this.query(authQueries.updateRefreshToken, [refreshToken, id]);
-	}
-
-	async selectRefreshToken(refreshToken: string): Promise<Query> {
-		return await this.query(authQueries.selectRefreshToken, refreshToken);
-	}
-
-	async insertFile(file: IFile): Promise<string> {
+	async insertFile(fileInfo: IFileInfo): Promise<string> {
 		await this.query(fileQueries.insertFile, [
-			file.name,
-			file.ext,
-			file.mimeType,
-			file.sizeMb,
-			file.date,
+			fileInfo.name,
+			fileInfo.ext,
+			fileInfo.mimeType,
+			fileInfo.sizeMb,
+			fileInfo.date,
 		]);
 		return 'File is uploaded';
 	}
 
-	async selectFileById(id: number): Promise<IFile> {
+	async selectFileById(id: number): Promise<IFileInfo> {
 		const file = await this.query(fileQueries.selectFileById, id);
 		return file[0];
 	}
@@ -110,20 +98,45 @@ export class Database implements IDatabase {
 		return `File with id ${id} deleted`;
 	}
 
-	async updateFileById(id: number, file: IFile): Promise<string> {
+	async updateFileById(id: number, fileInfo: IFileInfo): Promise<string> {
 		await this.query(fileQueries.updateFileById, [
-			file.name,
-			file.ext,
-			file.mimeType,
-			file.sizeMb,
-			file.date,
+			fileInfo.name,
+			fileInfo.ext,
+			fileInfo.mimeType,
+			fileInfo.sizeMb,
+			fileInfo.date,
 			id,
 		]);
 		return 'File is updated';
 	}
 
-	async selectAll(): Promise<IFile[] | []> {
+	async selectAllFiles(): Promise<IFileInfo[] | []> {
 		const result = await this.query(fileQueries.selectAll);
 		return result;
+	}
+
+	async insertRefreshToken(id: string, refreshToken: string): Promise<void> {
+		await this.query(authQueries.insertRefreshToken, [id, refreshToken]);
+	}
+
+	async selectRefreshToken(refreshToken: string): Promise<string | undefined> {
+		const result = await this.query(
+			authQueries.selectRefreshToken,
+			refreshToken
+		);
+		return result[0];
+	}
+
+	async insertBearerToken(id: string, bearerToken: string): Promise<void> {
+		await this.query(authQueries.insertBearerToken, [id, bearerToken]);
+	}
+
+	async updateBearerToken(bearerToken: string): Promise<void> {
+		await this.query(authQueries.updateBearerToken, bearerToken);
+	}
+
+	async selectBearerToken(bearerToken: string): Promise<string | undefined> {
+		const result = await this.query(authQueries.selectBearerToken, bearerToken);
+		return result[0];
 	}
 }

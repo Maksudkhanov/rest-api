@@ -7,8 +7,13 @@ export const InitQueries = {
    password VARCHAR(100) NOT NULL,
    PRIMARY KEY ( id )
 );`,
+
+	dropTableBearerTokens: `DROP TABLE IF EXISTS bearer_tokens;`,
+	createTableBearerTokens: `CREATE TABLE bearer_tokens (id VARCHAR(20) NOT NULL, bearer_token TEXT NOT NULL);`,
+
 	dropTableRefreshTokens: `DROP TABLE IF EXISTS refresh_tokens;`,
 	createTableRefreshTokens: `CREATE TABLE refresh_tokens (id VARCHAR(20) NOT NULL, refresh_token TEXT NOT NULL);`,
+
 	dropTableFiles: `DROP TABLE IF EXISTS files;`,
 	createTableFiles: `CREATE TABLE files(
 		id INT NOT NULL AUTO_INCREMENT,
@@ -18,7 +23,7 @@ export const InitQueries = {
 		sizeMb FLOAT NOT NULL,
 		uploadedAt VARCHAR(20) NOT NULL,
 		PRIMARY KEY ( id )
-	)`,
+	);`,
 
 	insertUser: `INSERT INTO users(email,phoneNumber, password) VALUES('test@mail.com','+998935898756', 'admin');`,
 };

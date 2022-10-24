@@ -3,7 +3,7 @@ import { authCheck } from '../middlewares/authCheck';
 import { checkForDuplicateUserId } from '../middlewares/checkForDuplicateUserId';
 import { checkForExistanceUserId } from '../middlewares/checkForExistanceUserId';
 import { validateRefreshToken } from '../middlewares/validateRefreshToken';
-import { validateSignUpDto } from '../middlewares/validateSignUpDto';
+import { validateAuthData } from '../middlewares/validateAuthData';
 import { verifyRefreshToken } from '../middlewares/verifyRefreshToken';
 import { IAuthService } from '../services/authService';
 
@@ -22,8 +22,8 @@ export function authController(authService: IAuthService) {
 	router.get('/logout', authCheck, async (req: Request, res: Response) => {
 		try {
 			const id = req.body.id;
-			const newRefreshToken = await authService.updateRefreshToken(id);
-			res.status(200).json({ refreshToken: newRefreshToken });
+			const newBearerToken = await authService.updateBearerToken(id);
+			res.status(200).json({ bearerToken: newBearerToken });
 		} catch (error) {
 			res.status(500).json({ error: error });
 		}
@@ -31,12 +31,12 @@ export function authController(authService: IAuthService) {
 
 	router.post(
 		'/signup',
-		validateSignUpDto,
+		validateAuthData,
 		checkForDuplicateUserId(authService),
 		async (req: Request, res: Response) => {
 			try {
 				const result = await authService.signup(req.body);
-				res.status(201).json({ msg: result });
+				res.status(201).json(result);
 			} catch (error) {
 				console.log(error);
 				res.status(500).json({ error: error });
@@ -46,7 +46,7 @@ export function authController(authService: IAuthService) {
 
 	router.post(
 		'/signin',
-		validateSignUpDto,
+		validateAuthData,
 		checkForExistanceUserId(authService),
 		async (req: Request, res: Response) => {
 			try {
