@@ -26,7 +26,7 @@ export function fileController(fileService: IFileService) {
 		async (req: Request, res: Response) => {
 			try {
 				const id = Number(req.params.id);
-				const fileInfo = req.body.fileInfo;
+				const fileInfo = req.fileInfo!;
 				const result = await fileService.deleteFileById(id, fileInfo);
 
 				res.status(200).json({ msg: result });
@@ -76,7 +76,7 @@ export function fileController(fileService: IFileService) {
 			const id = Number(req.params.id);
 			const result = await fileService.showFileInfo(id);
 
-			if (isEmpty(result)) {
+			if (!result) {
 				return res.status(404).json({ error: 'No such file' });
 			}
 

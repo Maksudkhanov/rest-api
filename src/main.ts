@@ -6,6 +6,7 @@ import { authController } from './controllers/authController';
 import { AuthService } from './services/authService';
 import { fileController } from './controllers/fileController';
 import { FileService } from './services/fileService';
+import { authCheck } from './middlewares/authCheck';
 
 dotenv.config();
 
@@ -31,7 +32,7 @@ const start = async () => {
 			})
 		);
 		server.use('/auth', auth);
-		server.use('/file', file);
+		server.use('/file', authCheck(authService), file);
 
 		server.listen(PORT, () => console.log('Running on server', PORT));
 	} catch (error) {
