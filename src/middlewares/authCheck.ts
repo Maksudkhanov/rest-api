@@ -1,7 +1,8 @@
-import { NextFunction, Request, Response } from 'express';
-import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import { NextFunction, Request, Response } from 'express';
 import { IAuthService } from '../services/authService';
+
 dotenv.config();
 
 export function authCheck(authService: IAuthService) {
@@ -18,7 +19,6 @@ export function authCheck(authService: IAuthService) {
 			}
 
 			const result = await authService.selectBearerToken(token);
-
 			if (!result) {
 				return res.status(400).json({ err: 'Invalid token' });
 			}
@@ -32,7 +32,6 @@ export function authCheck(authService: IAuthService) {
 
 			next();
 		} catch (error) {
-			console.log(error);
 
 			res.status(403).json({ err: 'User not authorized' });
 		}

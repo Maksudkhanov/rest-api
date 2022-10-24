@@ -12,8 +12,6 @@ export function verifyRefreshToken(authService: IAuthService) {
 			}
 
 			const result = await authService.selectRefreshToken(refreshToken)
-			console.log(result);
-			
 			if (!result) {
 				return res.status(400).json({ err: 'Invalid refreshToken' });
 			}
@@ -24,7 +22,6 @@ export function verifyRefreshToken(authService: IAuthService) {
 			);
 
 			req.userId = decodedData.id as string;
-
 			next();
 		} catch (error) {			
 			res.status(400).json({ err: 'Invalid refreshToken' });

@@ -1,4 +1,4 @@
-import {isEmail, isMobilePhone, isString } from 'class-validator';
+import {isEmail, isMobilePhone } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
 
 export async function validateAuthData(

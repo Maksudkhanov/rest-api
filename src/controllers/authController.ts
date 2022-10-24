@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import express, { Request, Response } from 'express';
 import { authCheck } from '../middlewares/authCheck';
 import { checkForDuplicateUserId } from '../middlewares/checkForDuplicateUserId';
@@ -5,7 +6,6 @@ import { checkForExistanceUserId } from '../middlewares/checkForExistanceUserId'
 import { validateAuthData } from '../middlewares/validateAuthData';
 import { verifyRefreshToken } from '../middlewares/verifyRefreshToken';
 import { IAuthService } from '../services/authService';
-import bcrypt from 'bcrypt';
 
 export function authController(authService: IAuthService) {
 	const router = express.Router();
@@ -39,7 +39,6 @@ export function authController(authService: IAuthService) {
 				const result = await authService.signup(req.body);
 				res.status(201).json(result);
 			} catch (error) {
-				console.log(error);
 				res.status(500).json({ error: error });
 			}
 		}

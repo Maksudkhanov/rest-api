@@ -1,5 +1,5 @@
-import { IAuthService } from '../services/authService';
 import { Request, Response, NextFunction } from 'express';
+import { IAuthService } from '../services/authService';
 
 export function checkForExistanceUserId(authService: IAuthService) {
 	return async function (req: Request, res: Response, next: NextFunction) {
@@ -10,7 +10,6 @@ export function checkForExistanceUserId(authService: IAuthService) {
 		}
 
 		req.userData = result
-
 		next();
 	};
 }

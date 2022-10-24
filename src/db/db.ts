@@ -1,5 +1,5 @@
-import { isEmail } from 'class-validator';
 import mysql from 'mysql';
+import { isEmail } from 'class-validator';
 import dotenv from 'dotenv';
 import util from 'util';
 import { InitQueries } from './queries/InitQueries';
