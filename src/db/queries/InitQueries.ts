@@ -12,7 +12,7 @@ export const InitQueries = {
 	createTableBearerTokens: `CREATE TABLE bearer_tokens (id VARCHAR(20) NOT NULL, bearer_token TEXT NOT NULL);`,
 
 	dropTableRefreshTokens: `DROP TABLE IF EXISTS refresh_tokens;`,
-	createTableRefreshTokens: `CREATE TABLE refresh_tokens (id VARCHAR(20) NOT NULL, refresh_token TEXT NOT NULL);`,
+	createTableRefreshTokens: `CREATE TABLE refresh_tokens (refresh_token TEXT NOT NULL);`,
 
 	dropTableFiles: `DROP TABLE IF EXISTS files;`,
 	createTableFiles: `CREATE TABLE files(
@@ -25,5 +25,5 @@ export const InitQueries = {
 		PRIMARY KEY ( id )
 	);`,
 
-	insertUser: `INSERT INTO users(email,phoneNumber, password) VALUES('test@mail.com','+998935898756', 'admin');`,
+	insertUser: `INSERT INTO users(email, password) VALUES('test@mail.ru', 'admin');`,
 };

@@ -10,7 +10,7 @@ export function checkForExistanceFile(fileService: IFileService) {
 			return res.status(404).json({ error: 'No such file' });
 		}
 
-		req.body.fileInfo = result;
+		req.fileInfo = result;
 		next();
 	};
 }

@@ -6,20 +6,26 @@ import { InitQueries } from './queries/InitQueries';
 import { authQueries } from './queries/authQueries';
 import { fileQueries } from './queries/fileQueries';
 import { IFileInfo } from '../interfaces/fileInfo';
+import { IAuthFields } from '../interfaces/authFields';
 
 dotenv.config();
 
 export interface IDatabase {
-	connect(host: string, user: string, password: string, database: string): void;
+	connect(
+		host: string,
+		user: string,
+		password: string,
+		database: string
+	): Promise<void>;
 
 	insertUser(id: string, hash: string): Promise<string>;
-	selectUser(id: string): Promise<string | undefined>;
+	selectUser(id: string): Promise<IAuthFields | undefined>;
 
 	insertBearerToken(id: string, bearerToken: string): Promise<void>;
 	selectBearerToken(bearerToken: string): Promise<string | undefined>;
-	updateBearerToken(bearerToken: string): Promise<void>;
+	updateBearerToken(id: string, bearerToken: string): Promise<void>;
 
-	insertRefreshToken(id: string, refreshToken: string): Promise<void>;
+	insertRefreshToken(refreshToken: string): Promise<void>;
 	selectRefreshToken(refreshToken: string): Promise<string | undefined>;
 
 	insertFile(fileInfo: IFileInfo): Promise<string>;
@@ -54,6 +60,9 @@ export class Database implements IDatabase {
 		await this.query(InitQueries.dropTableBearerTokens);
 		await this.query(InitQueries.createTableBearerTokens);
 
+		await this.query(InitQueries.dropTableBearerTokens);
+		await this.query(InitQueries.createTableBearerTokens);
+		
 		await this.query(InitQueries.dropTableRefreshTokens);
 		await this.query(InitQueries.createTableRefreshTokens);
 
@@ -61,6 +70,9 @@ export class Database implements IDatabase {
 		await this.query(InitQueries.createTableFiles);
 
 		// await this.query(InitQueries.insertUser);
+		console.log('Database connected ...');
+
+		return;
 	}
 
 	async insertUser(id: string, hash: string): Promise<string> {
@@ -70,11 +82,14 @@ export class Database implements IDatabase {
 		return await this.query(authQueries.insertUserByPhoneNumber, [id, hash]);
 	}
 
-	async selectUser(id: string): Promise<string | undefined> {
+	async selectUser(id: string): Promise<IAuthFields | undefined> {
+		let result;
 		if (isEmail(id)) {
-			return await this.query(authQueries.selectUserByEmail, id)[0];
+			result = await this.query(authQueries.selectUserByEmail, id);
+		} else {
+			result = await this.query(authQueries.selectUserByPhoneNumber, id);
 		}
-		return await this.query(authQueries.selectUserByPhoneNumber, id)[0];
+		return result[0];
 	}
 
 	async insertFile(fileInfo: IFileInfo): Promise<string> {
@@ -115,8 +130,8 @@ export class Database implements IDatabase {
 		return result;
 	}
 
-	async insertRefreshToken(id: string, refreshToken: string): Promise<void> {
-		await this.query(authQueries.insertRefreshToken, [id, refreshToken]);
+	async insertRefreshToken(refreshToken: string): Promise<void> {
+		await this.query(authQueries.insertRefreshToken, refreshToken);
 	}
 
 	async selectRefreshToken(refreshToken: string): Promise<string | undefined> {
@@ -131,8 +146,8 @@ export class Database implements IDatabase {
 		await this.query(authQueries.insertBearerToken, [id, bearerToken]);
 	}
 
-	async updateBearerToken(bearerToken: string): Promise<void> {
-		await this.query(authQueries.updateBearerToken, bearerToken);
+	async updateBearerToken(id: string, bearerToken: string): Promise<void> {
+		await this.query(authQueries.updateBearerToken, [bearerToken, id]);
 	}
 
 	async selectBearerToken(bearerToken: string): Promise<string | undefined> {

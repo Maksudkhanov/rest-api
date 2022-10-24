@@ -1,7 +1,5 @@
-import { Query } from 'mysql';
 import { Request, Response, NextFunction } from 'express';
 import { IAuthService } from '../services/authService';
-import { isNotEmptyArr } from '../utils/isNotEmptyArr';
 
 export function checkForDuplicateUserId(authService: IAuthService) {
 	return async function (req: Request, res: Response, next: NextFunction) {

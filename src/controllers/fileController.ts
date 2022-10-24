@@ -42,7 +42,7 @@ export function fileController(fileService: IFileService) {
 		async (req: Request, res: Response) => {
 			try {
 				const id = Number(req.params.id);
-				const oldFile = req.body.fileInfo;
+				const oldFile = req.fileInfo!;
 				const avatar: UploadedFile | UploadedFile[] = req.files!.avatar;
 
 				const result = await fileService.updateFileById(id, avatar, oldFile);

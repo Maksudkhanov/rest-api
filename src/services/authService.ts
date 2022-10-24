@@ -1,20 +1,20 @@
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-import { Query } from 'mysql';
 import { IAuthFields } from '../interfaces/authFields';
-import { IAuthTokens} from '../interfaces/authTokens';
+import { IAuthTokens } from '../interfaces/authTokens';
 import { IDatabase } from './../db/db';
 dotenv.config();
 
 export interface IAuthService {
 	signup(authFields: IAuthFields): Promise<IAuthTokens>;
-	signin(authFields: IAuthFields): Promise<IAuthTokens>;
+	selectUserById(id: string): Promise<IAuthFields | undefined>;
 
-	updateBearerToken(id: string): Promise<string>;
-
-	selectUserById(id: string): Promise<string | undefined>;
-	selectBearerToken(refreshToken: string): Promise<string | undefined>;
+	createorUpdateBearerToken(id: string): Promise<string>;
+	selectBearerToken(
+		bearerToken: string
+	): Promise<string | undefined>;
+	selectRefreshToken(refreshToken: string): Promise<string | undefined>;
 }
 
 export class AuthService implements IAuthService {
@@ -33,34 +33,30 @@ export class AuthService implements IAuthService {
 		const refreshToken = generateRefreshToken(id);
 
 		await this.db.insertBearerToken(id, bearerToken);
-		await this.db.insertRefreshToken(id, refreshToken);
+		await this.db.insertRefreshToken(refreshToken);
 
 		return { bearerToken, refreshToken };
 	}
 
-	async selectUserById(id: string): Promise<string | undefined> {
+	async selectUserById(id: string): Promise<IAuthFields | undefined> {
 		const result = await this.db.selectUser(id);
 		return result;
 	}
 
-	async signin(authFields: IAuthFields): Promise<any> {
-		// const id = authDto.id;
-		// return { bearerToken, refreshToken };
+	async createorUpdateBearerToken(id: string): Promise<string> {
+		const newBearerToken = generateBearerToken(id);
+		await this.db.updateBearerToken(id, newBearerToken);
+		return newBearerToken;
 	}
 
-	async updateBearerToken(id: string): Promise<string> {
-		// const newBearerToken = generateBearerToken(id)
-		// await this.db.updateBearerToken(id, newBearerToken);
-		// return newBearerToken;
-		return 'as';
-	}
-
-	async selectBearerToken(refreshToken: string): Promise<string | undefined> {
-		return undefined;
-	}
-
-	async findRefreshToken(bearerToken: string): Promise<string | undefined> {
+	async selectBearerToken(
+		bearerToken: string
+	): Promise<string | undefined> {
 		return await this.db.selectBearerToken(bearerToken);
+	}
+
+	async selectRefreshToken(refreshToken: string): Promise<string | undefined> {
+		return await this.db.selectRefreshToken(refreshToken);
 	}
 }
 
