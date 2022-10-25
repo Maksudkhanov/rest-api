@@ -69,9 +69,7 @@ export class Database implements IDatabase {
 		await this.query(InitQueries.dropTableFiles);
 		await this.query(InitQueries.createTableFiles);
 
-		// await this.query(InitQueries.insertUser);
 		console.log('Database connected ...');
-
 		return;
 	}
 
