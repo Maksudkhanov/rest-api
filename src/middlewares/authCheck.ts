@@ -7,6 +7,7 @@ dotenv.config();
 
 export function authCheck(authService: IAuthService) {
 	return async function (req: Request, res: Response, next: NextFunction) {
+		
 		if (req.method === 'OPTIONS') {
 			next();
 		}
