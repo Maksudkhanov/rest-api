@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import express, { Request, Response } from 'express';
 import { authCheck } from '../middlewares/authCheck';
 import { checkForDuplicateUserId } from '../middlewares/checkForDuplicateUserId';

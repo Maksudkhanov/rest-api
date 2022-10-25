@@ -96,7 +96,7 @@ export function fileController(fileService: IFileService) {
 			}
 
 			const pathToFile = `./uploads/${fileInfo!.name}.${fileInfo!.ext}`;
-			res.status(200).download(pathToFile)
+			res.status(200).download(pathToFile);
 		} catch (error) {
 			res.status(500).send(error);
 		}
